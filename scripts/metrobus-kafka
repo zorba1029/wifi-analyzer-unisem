@@ -1,0 +1,90 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: metro-kafka
+# Required-Start: $remote_fs $syslog
+# Required-Stop: $remote_fs $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Start daemon at boot time
+# Description: Enable service provided by daemon.
+### END INIT INFO
+
+#--------------------------------------------------------------------------
+# Author: Heung-Mook CHOI <hmchoi@unisem.co.kr>
+# 2017/12/12, zorba
+#--------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+# # update-rc.d metro-kafka defaults 70 10
+# perl: warning: Setting locale failed.
+# perl: warning: Please check that your locale settings:
+#     LANGUAGE = "en_US:en",
+#     LC_ALL = (unset),
+#     LC_CTYPE = "UTF-8",
+#     LANG = "en_US.UTF-8"
+#     are supported and installed on your system.
+# perl: warning: Falling back to the standard locale ("C").
+#  Adding system startup for /etc/init.d/metro-kafka ...
+#    /etc/rc0.d/K10metro-kafka -> ../init.d/metro-kafka
+#    /etc/rc1.d/K10metro-kafka -> ../init.d/metro-kafka
+#    /etc/rc6.d/K10metro-kafka -> ../init.d/metro-kafka
+#    /etc/rc2.d/S70metro-kafka -> ../init.d/metro-kafka
+#    /etc/rc3.d/S70metro-kafka -> ../init.d/metro-kafka
+#    /etc/rc4.d/S70metro-kafka -> ../init.d/metro-kafka
+#    /etc/rc5.d/S70metro-kafka -> ../init.d/metro-kafka
+#-----------------
+# remove
+# update-rc.d -f metro-kafka remove
+#---------------------------------------------------------------------------
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON_PATH=/opt/kafka/bin
+DAEMON_NAME=metro-kafka
+# Check that networking is up.
+#[ ${NETWORKING} = "no" ] && exit 0
+
+PATH=$PATH:$DAEMON_PATH
+
+# See how we were called.
+case "$1" in
+  start)
+        # Start daemon.
+        echo "Starting $DAEMON_NAME";
+        pid=`ps ax | grep -i 'kafka\.Kafka' | grep -v grep | awk '{print $1}'`
+        if [ -n "$pid" ]
+          then
+          echo "Kafka is running"
+        else
+          nohup $DAEMON_PATH/kafka-server-start.sh -daemon /opt/kafka/config/server.properties 1>/dev/null 2>&1 & 
+        fi
+        ;;
+  stop)
+        # Stop daemons.
+        echo "Shutting down $DAEMON_NAME";
+        pid=`ps ax | grep -i 'kafka\.Kafka' | grep -v grep | awk '{print $1}'`
+        if [ -n "$pid" ]
+          then
+          kill -9 $pid
+        else
+          echo "Kafka was not Running"
+        fi
+        ;;
+  restart)
+        $0 stop
+        sleep 2
+        $0 start
+        ;;
+  status)
+        pid=`ps ax | grep -i 'kafka\.Kafka' | grep -v grep | awk '{print $1}'`
+        if [ -n "$pid" ]
+          then
+          echo "Kafka is Running as PID: $pid"
+        else
+          echo "Kafka is not Running"
+        fi
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac
+
+exit 0
