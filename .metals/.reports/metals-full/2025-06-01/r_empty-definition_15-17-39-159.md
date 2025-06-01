@@ -1,3 +1,31 @@
+error id: file://<WORKSPACE>/src/main/scala/com/unisem/metrobus/analyzer/ConsumerActor.scala:`<none>`.
+file://<WORKSPACE>/src/main/scala/com/unisem/metrobus/analyzer/ConsumerActor.scala
+empty definition using pc, found symbol in pc: `<none>`.
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -java/sql/context/system/scheduler/scheduleOnce.
+	 -java/sql/context/system/scheduler/scheduleOnce#
+	 -java/sql/context/system/scheduler/scheduleOnce().
+	 -com/unisem/metrobus/analyzer/messages/Messages.context.system.scheduler.scheduleOnce.
+	 -com/unisem/metrobus/analyzer/messages/Messages.context.system.scheduler.scheduleOnce#
+	 -com/unisem/metrobus/analyzer/messages/Messages.context.system.scheduler.scheduleOnce().
+	 -scala/concurrent/duration/context/system/scheduler/scheduleOnce.
+	 -scala/concurrent/duration/context/system/scheduler/scheduleOnce#
+	 -scala/concurrent/duration/context/system/scheduler/scheduleOnce().
+	 -ConsumerActor.context.system.scheduler.scheduleOnce.
+	 -ConsumerActor.context.system.scheduler.scheduleOnce#
+	 -ConsumerActor.context.system.scheduler.scheduleOnce().
+	 -context/system/scheduler/scheduleOnce.
+	 -context/system/scheduler/scheduleOnce#
+	 -context/system/scheduler/scheduleOnce().
+	 -scala/Predef.context.system.scheduler.scheduleOnce.
+	 -scala/Predef.context.system.scheduler.scheduleOnce#
+	 -scala/Predef.context.system.scheduler.scheduleOnce().
+offset: 3636
+uri: file://<WORKSPACE>/src/main/scala/com/unisem/metrobus/analyzer/ConsumerActor.scala
+text:
+```scala
 package com.unisem.metrobus.analyzer
 
 import java.io.IOException
@@ -106,7 +134,7 @@ class ConsumerActor() extends Actor with ActorLogging {
 	override def preStart = {
 		log.info(s"ActorId[$consumerActorId] - [*] ~~>> preStart() ")
 
-		context.system.scheduler.scheduleOnce(5 seconds, self, Messages.StartConsumer)
+		context.system.scheduler.sched@@uleOnce(5 seconds, self, Messages.StartConsumer)
 	}
 
 
@@ -234,9 +262,9 @@ class ConsumerActor() extends Actor with ActorLogging {
 		val newRecordDT = LocalDateTime.parse(newRecord.datetime, DATE_TIME_FORMATTER)
 		val partitionName = getPartitionNameForDate(newRecordDT.toLocalDate)
 		val selectQry = s""" SELECT dev_id, DATE_FORMAT(start_date, '%Y-%m-%d') as start_date,
-			                 |        DATE_FORMAT(last_datetime, '%Y-%m-%d %H:%i:%s') as last_datetime, station_id
-			                 | FROM global_dev_tbl  PARTITION (${partitionName})
-			                 | WHERE dev_id = ? ;
+        DATE_FORMAT(last_datetime, '%Y-%m-%d %H:%i:%s') as last_datetime, station_id
+ FROM global_dev_tbl  PARTITION (${partitionName})
+ WHERE dev_id = ? ;
 										""".stripMargin
 
 		try {
@@ -275,8 +303,8 @@ class ConsumerActor() extends Actor with ActorLogging {
 		val partitionName = getPartitionNameForDate(newRecordDT.toLocalDate)
 		val newRecDateTime = newRecordDT.format(DATE_TIME_FORMATTER)
 		val insertDevTblQry = s""" INSERT INTO global_dev_tbl PARTITION (${partitionName})
-			                       |       (dev_id, start_date, last_datetime, station_id)
-			                       | VALUES (?, ?, ?, ?) ;
+       (dev_id, start_date, last_datetime, station_id)
+ VALUES (?, ?, ?, ?) ;
 													""".stripMargin
 
 		log.info(s"ActorId=[$consumerActorId] INSERT New Record & UPDATE Stats(Visits) Table -- " +
@@ -433,8 +461,8 @@ class ConsumerActor() extends Actor with ActorLogging {
 		// UPDATE station_stats_hourly, count = count + 1
 		val columnHour = columnMap.get(hour).getOrElse("hour_00")
 		val updateStationStatsTblQry = s""" UPDATE station_stats_hourly
-			                                | SET  ${columnHour} = ${columnHour} + 1
-			                                | WHERE station_id = ? AND stat_date = ? ;
+ SET  ${columnHour} = ${columnHour} + 1
+ WHERE station_id = ? AND stat_date = ? ;
 																	""".stripMargin
 
 		try {
@@ -478,8 +506,8 @@ class ConsumerActor() extends Actor with ActorLogging {
 		//-- UPDATE flows_stats_tbl, count + 1
 		val columnHour = columnMap.get(hour).getOrElse("hour_00")
 		val updateFlowsStatsTblQry = s""" UPDATE flows_stats_hourly
-			                              | SET  ${columnHour}  = ${columnHour} + 1
-			                              | WHERE src_station_id = ? AND dst_station_id = ? AND stat_date = ? ;
+ SET  ${columnHour}  = ${columnHour} + 1
+ WHERE src_station_id = ? AND dst_station_id = ? AND stat_date = ? ;
 																	""".stripMargin
 
 		try {
@@ -522,8 +550,8 @@ class ConsumerActor() extends Actor with ActorLogging {
 		//----------------------------------------------------------------
 		//-- UPDATE last_ts only in global_dev_tbl,
 		val updateDevTblQry = s""" UPDATE global_dev_tbl PARTITION (${partitionName})
-			                       | SET   last_datetime = ?
-			                       | WHERE dev_id = ? ;
+ SET   last_datetime = ?
+ WHERE dev_id = ? ;
 													""".stripMargin
 
 		try {
@@ -562,8 +590,8 @@ class ConsumerActor() extends Actor with ActorLogging {
 		//----------------------------------------------------------------
 		//-- UPDATE last_ts, station_id in global_dev_tbl
 		val updateDevTblQry = s""" UPDATE global_dev_tbl PARTITION (${partitionName})
-			                       | SET   last_datetime = ?, station_id = ?
-			                       | WHERE dev_id = ? ;
+ SET   last_datetime = ?, station_id = ?
+ WHERE dev_id = ? ;
 													""".stripMargin
 
 		try {
@@ -598,24 +626,24 @@ class ConsumerActor() extends Actor with ActorLogging {
 
 		//-- SELECT --------
 		val selectQuery = s""" SELECT *
-			                   | FROM  station_stats_hourly PARTITION (${pName})
-			                   | WHERE station_id = ? AND stat_date = ? ;
+ FROM  station_stats_hourly PARTITION (${pName})
+ WHERE station_id = ? AND stat_date = ? ;
 											""".stripMargin
 
 		//-- INSERT --------
 		val insertQry = s""" INSERT INTO station_stats_hourly PARTITION (${pName})
-			                 |   (station_id, stat_date,
-			                 |    hour_00, hour_01, hour_02, hour_03, hour_04,
-			                 |    hour_05, hour_06, hour_07, hour_08, hour_09,
-			                 |    hour_10, hour_11, hour_12, hour_13, hour_14,
-			                 |    hour_15, hour_16, hour_17, hour_18, hour_19,
-			                 |    hour_20, hour_21, hour_22, hour_23)
-			                 | VALUES (?, ?,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0 ) ;
+   (station_id, stat_date,
+    hour_00, hour_01, hour_02, hour_03, hour_04,
+    hour_05, hour_06, hour_07, hour_08, hour_09,
+    hour_10, hour_11, hour_12, hour_13, hour_14,
+    hour_15, hour_16, hour_17, hour_18, hour_19,
+    hour_20, hour_21, hour_22, hour_23)
+ VALUES (?, ?,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0 ) ;
 										""".stripMargin
 
 		var ret = false
@@ -675,25 +703,25 @@ class ConsumerActor() extends Actor with ActorLogging {
 		val pName = getPartitionNameForDate(day)
 		//-- SELECT --------
 		val selectQuery = s""" SELECT *
-			                   | FROM  flows_stats_hourly PARTITION (${pName})
-			                   | WHERE src_station_id = ? AND dst_station_id = ? AND stat_date = ? ;
+ FROM  flows_stats_hourly PARTITION (${pName})
+ WHERE src_station_id = ? AND dst_station_id = ? AND stat_date = ? ;
 												""".stripMargin
 
 		//-- INSERT --------
 		val insertQry = s""" INSERT INTO flows_stats_hourly PARTITION ($pName)
-			                 |   (src_station_id, dst_station_id, stat_date,
-			                 |    hour_00, hour_01, hour_02, hour_03, hour_04,
-			                 |    hour_05, hour_06, hour_07, hour_08, hour_09,
-			                 |    hour_10, hour_11, hour_12, hour_13, hour_14,
-			                 |    hour_15, hour_16, hour_17, hour_18, hour_19,
-			                 |    hour_20, hour_21, hour_22, hour_23)
-			                 | VALUES (?, ?, ?,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0, 0,
-			                 |         0, 0, 0, 0 ) ;
-			                 |""".stripMargin
+   (src_station_id, dst_station_id, stat_date,
+    hour_00, hour_01, hour_02, hour_03, hour_04,
+    hour_05, hour_06, hour_07, hour_08, hour_09,
+    hour_10, hour_11, hour_12, hour_13, hour_14,
+    hour_15, hour_16, hour_17, hour_18, hour_19,
+    hour_20, hour_21, hour_22, hour_23)
+ VALUES (?, ?, ?,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0,
+         0, 0, 0, 0 ) ;
+""".stripMargin
 		var ret = false
 		val localDateStr = day.format(DATE_ONLY_FORMATTER)
 		log.debug(s"ActorId=[$consumerActorId] INSERT INTO flows_stats_hourly ---, pName = $pName")
@@ -752,3 +780,10 @@ class ConsumerActor() extends Actor with ActorLogging {
 	}
 }
 
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: `<none>`.

@@ -496,6 +496,5 @@ class StationStatsTablesPartitionManager extends PartitionManager {
 
 		doExecOperation(query)
 	}
-
 }
 
